@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Tafelladder</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#1d2433;--muted:#687083;--line:#e2e5eb;--accent:#2f6fde;--accent-ink:#fff;--ok:#1a7f45;--ok-bg:#dff4e7;--memo:#6d28d9;--memo-bg:#ede4ff;--oef:#8a5a00;--oef-bg:#fff2d6;--danger:#c0392b}
+@media (prefers-color-scheme:dark){:root{--bg:#13161c;--card:#1c2028;--ink:#e7eaf0;--muted:#97a0b1;--line:#2c323d;--accent:#5b8ff0;--ok:#4ade80;--ok-bg:#16301f;--memo:#b794f6;--memo-bg:#2a1f45;--oef:#fbbf24;--oef-bg:#382a0d}}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+.hidden{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:7px 12px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn.small{padding:3px 8px;font-size:13px}
+.btn.danger{color:var(--danger)}
+input[type=number],input[type=text],select,textarea{border:1px solid var(--line);background:var(--card);border-radius:7px;padding:6px 8px}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 20px;background:var(--card);border-bottom:1px solid var(--line)}
+.brand{font-weight:700;font-size:18px}
+.brand small{font-weight:400;color:var(--muted);font-size:13px;margin-left:6px}
+.tabs{display:flex;gap:4px;flex:1}
+.tabs button{border:0;background:none;padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--muted)}
+.tabs button.on{background:var(--bg);color:var(--ink);font-weight:600}
+main{max-width:1050px;margin:0 auto;padding:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+h2{font-size:17px;margin:0 0 12px}
+.muted{color:var(--muted)}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+.namelink{background:none;border:0;padding:0;cursor:pointer;font-weight:600;text-align:left}
+.namelink:hover{color:var(--accent)}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600}
+.b-memo{background:var(--memo-bg);color:var(--memo)}
+.b-auto{background:var(--ok-bg);color:var(--ok)}
+.b-oefen{background:var(--oef-bg);color:var(--oef)}
+.dots{display:flex;gap:3px;flex-wrap:wrap}
+.dot{width:11px;height:11px;border-radius:3px;background:var(--line)}
+.dot.done{background:var(--ok)}
+.dot.cur{background:var(--accent)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--bg)}
+.chip b{display:block;font-size:13px}
+.chip span{font-size:12px;color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+label.f input,label.f select{color:var(--ink);font-size:15px}
+.inp-goed{width:80px;font-size:16px;text-align:center}
+.uitkomst{font-size:13px}
+.ljrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid var(--line)}
+.ljrow .nr{width:22px;color:var(--muted);text-align:right}
+.tbtn{width:32px;height:30px;border:1px solid var(--line);border-radius:6px;background:var(--card);cursor:pointer}
+.tbtn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.ljlabel{flex:1;min-width:160px;font-size:13px}
+.empty{text-align:center;padding:40px;color:var(--muted)}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px}
+.login .card{max-width:380px;text-align:center;padding:32px}
+.login h1{margin:0 0 6px;font-size:26px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1d2433;color:#fff;padding:10px 16px;border-radius:10px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;max-width:90vw}
+#toast.show{opacity:1}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);max-width:600px;width:92vw;padding:20px}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+.ingevoerd{font-size:12px;color:var(--muted)}
+@media (max-width:640px){main{padding:12px}.top{padding:10px 12px}.hide-sm{display:none}}
+
+/* ---------- Print ---------- */
+#printArea{display:none}
+@page{size:A4 portrait;margin:12mm}
+@media print{
+  body{background:#fff}
+  body>*:not(#printArea){display:none!important}
+  #printArea{display:block}
+}
+.blad{height:268mm;display:flex;flex-direction:column;color:#000;font-family:Arial,Helvetica,sans-serif;break-after:page;page-break-after:always}
+.blad:last-child{break-after:auto;page-break-after:auto}
+.bh{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #000;padding-bottom:3mm}
+.bnaam{font-size:24pt;font-weight:700}
+.bstap{font-size:13pt;margin-top:1mm}
+.bmeta{text-align:right;font-size:11pt}
+.binfo{display:flex;justify-content:space-between;align-items:center;margin:4mm 0 3mm;font-size:12pt}
+.vak{display:inline-block;width:18mm;height:9mm;border:1.5px solid #000;border-radius:2mm;vertical-align:middle}
+.sommen{flex:1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-template-rows:repeat(var(--rows),1fr);grid-auto-flow:column;column-gap:7mm}
+.sommen li{display:flex;align-items:center;gap:2mm;border-bottom:1px dotted #aaa}
+.sommen .nr{font-size:.5em;color:#888;width:5mm;text-align:right}
+.sommen .q{white-space:nowrap}
+.sommen .a{flex:1;font-weight:700;color:#444}
+.blad.antw .bh{border-bottom-style:dashed}
+</style>
+</head>
+<body>
+
+<div id="loading" class="empty">Laden…</div>
+
+<div id="login" class="login hidden">
+  <div class="card">
+    <h1>🪜 Tafelladder</h1>
+    <p class="muted">Tafels automatiseren en memoriseren bijhouden.</p>
+    <button class="btn primary" id="btnLogin">Inloggen met Google</button>
+    <p id="loginErr" class="muted" style="color:var(--danger)"></p>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header class="top">
+    <div class="brand">🪜 Tafelladder <small id="weekInfo"></small></div>
+    <nav class="tabs" id="tabs">
+      <button data-tab="overzicht">Overzicht</button>
+      <button data-tab="invoeren">Invoeren</button>
+      <button data-tab="leerlingen">Leerlingen</button>
+      <button data-tab="instellingen">Instellingen</button>
+    </nav>
+    <button class="btn primary" data-action="printAlles">🖨 Print werkbladen</button>
+  </header>
+  <main id="main"></main>
+</div>
+
+<div id="printArea"></div>
+<dialog id="dlg"></dialog>
+<div id="toast"></div>
+<input type="file" id="importFile" accept="application/json" class="hidden">
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Deze config is niet geheim: de beveiliging zit in de Firestore-regels (alleen jouw account).
+const firebaseConfig = {
+  apiKey: "AIzaSyD1wDkzI0d8_GsAucfV7QBJxU3fqWOpfVc",
+  authDomain: "tafelladder.firebaseapp.com",
+  projectId: "tafelladder",
+  storageBucket: "tafelladder.firebasestorage.app",
+  messagingSenderId: "884198966249",
+  appId: "1:884198966249:web:4638565cff284e6f494178"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
+
+// ---------- helpers ----------
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const nieuwId = () => Math.random().toString(36).slice(2, 10);
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function toast(t){ const el=$("#toast"); el.textContent=t; el.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove("show"),2600); }
+function isoWeek(d=new Date()){ const x=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); const day=x.getUTCDay()||7; x.setUTCDate(x.getUTCDate()+4-day); const y0=new Date(Date.UTC(x.getUTCFullYear(),0,1)); return {jaar:x.getUTCFullYear(), week:Math.ceil(((x-y0)/864e5+1)/7)}; }
+function vandaag(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+function datumNL(iso){ const [y,m,d]=(iso||vandaag()).split("-"); return `${+d}-${+m}-${y}`; }
+function tijdTekst(sec){ const m=Math.floor(sec/60), s=sec%60; if(!s) return `${m} ${m===1?"minuut":"minuten"}`; return m?`${m} min ${s} sec`:`${s} seconden`; }
+
+// ---------- state ----------
+let state = null, user = null, docRef = null, unsub = null, tab = "overzicht", invoerDirty = false;
+
+function defaultState(){
+  const lj = [[2],[3],[4],[5],[10],[2,3,4,5,10],[6],[7],[8],[9],[6,7,8,9],[1,2,3,4,5,6,7,8,9,10]];
+  return {
+    versie: 1,
+    instellingen: { aantal: 40, tijdSec: 120, autoSec: 5, memoSec: 3, doorBij: "auto", omgedraaid: false, antwoordbladen: false },
+    leerlijn: lj.map(t => ({ id: nieuwId(), tafels: t })),
+    leerlingen: []
+  };
+}
+function label(stap){
+  if(!stap) return "—";
+  const t=[...stap.tafels].sort((a,b)=>a-b);
+  if(t.length===1) return `Tafel van ${t[0]}`;
+  if(t.length===10) return "Alle tafels door elkaar";
+  return `Tafels ${t.slice(0,-1).join(", ")} en ${t.at(-1)} door elkaar`;
+}
+function normen(){ const s=state.instellingen; return { auto: Math.min(s.aantal, Math.floor(s.tijdSec/s.autoSec)), memo: Math.min(s.aantal, Math.floor(s.tijdSec/s.memoSec)) }; }
+function stapIndex(l){ const i=state.leerlijn.findIndex(s=>s.id===l.stapId); return i<0?0:i; }
+function stapVan(l){ return state.leerlijn[stapIndex(l)]; }
+function statusVan(goed){ const n=normen(); return goed>=n.memo?"memo":goed>=n.auto?"auto":"oefen"; }
+function moetDoor(st){ return state.instellingen.doorBij==="memo" ? st==="memo" : st!=="oefen"; }
+const statusNaam = { memo:"⭐ gememoriseerd", auto:"✓ geautomatiseerd", oefen:"oefenen" };
+function gesorteerd(){ return [...state.leerlingen].sort((a,b)=>a.naam.localeCompare(b.naam,"nl")); }
+function laatste(l){ return l.historie?.length ? l.historie[l.historie.length-1] : null; }
+function ditWeekIngevoerd(l){ const h=laatste(l); if(!h) return false; const w=isoWeek(); return h.week===w.week && h.jaar===w.jaar; }
+
+async function bewaar(){
+  try { await setDoc(docRef, state); }
+  catch(e){ console.error(e); toast("⚠️ Opslaan mislukt: " + (e.code||e.message)); }
+}
+
+// ---------- auth ----------
+$("#btnLogin").onclick = async () => {
+  $("#loginErr").textContent = "";
+  try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+  catch(e){ $("#loginErr").textContent = "Inloggen mislukt: " + (e.code||e.message); }
+};
+
+onAuthStateChanged(auth, u => {
+  user = u;
+  if(unsub){ unsub(); unsub = null; }
+  $("#loading").classList.add("hidden");
+  if(!u){ state=null; $("#app").classList.add("hidden"); $("#login").classList.remove("hidden"); return; }
+  $("#login").classList.add("hidden");
+  docRef = doc(db, "users", u.uid, "tafelladder", "klas");
+  unsub = onSnapshot(docRef, snap => {
+    if(!snap.exists()){ state = defaultState(); bewaar(); }
+    else state = snap.data();
+    $("#app").classList.remove("hidden");
+    if(tab==="invoeren" && invoerDirty) return; // niet wissen wat je aan het typen bent
+    render();
+  }, err => {
+    $("#app").classList.add("hidden"); $("#login").classList.remove("hidden");
+    $("#loginErr").innerHTML = `Geen toegang met <b>${esc(u.email)}</b>. Log in met het juiste account.<br><button class="btn small" id="btnUit2">Uitloggen</button>`;
+    $("#btnUit2").onclick = () => signOut(auth);
+  });
+});
+
+// ---------- render ----------
+function render(){
+  if(!state) return;
+  const w=isoWeek();
+  $("#weekInfo").textContent = `week ${w.week} · ${state.leerlingen.length} leerlingen`;
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on", b.dataset.tab===tab));
+  const m=$("#main");
+  if(tab==="overzicht") m.innerHTML = renderOverzicht();
+  else if(tab==="invoeren") { m.innerHTML = renderInvoeren(); invoerDirty=false; }
+  else if(tab==="leerlingen") m.innerHTML = renderLeerlingen();
+  else m.innerHTML = renderInstellingen();
+}
+
+function dots(l){
+  const ix=stapIndex(l);
+  return `<div class="dots">${state.leerlijn.map((s,i)=>`<i class="dot ${i<ix||(l.klaar&&i===ix)?"done":i===ix?"cur":""}" title="${esc(label(s))}"></i>`).join("")}</div>`;
+}
+
+function renderOverzicht(){
+  const ll=gesorteerd();
+  if(!ll.length) return `<div class="card empty">Nog geen leerlingen.<br><br><button class="btn primary" data-tab-go="leerlingen">Leerlingen toevoegen</button></div>`;
+  const groepen = state.leerlijn.map((s,i)=>({s,i,kids:ll.filter(l=>stapIndex(l)===i)})).filter(g=>g.kids.length);
+  const n=normen();
+  return `
+  <div class="card">
+    <h2>Wie werkt aan wat</h2>
+    <div class="chips">${groepen.map(g=>`<div class="chip"><b>${esc(label(g.s))}</b><span>${g.kids.length} · ${g.kids.map(k=>esc(k.naam)).join(", ")}</span></div>`).join("")}</div>
+    <p class="muted" style="margin:12px 0 0;font-size:13px">Norm: ${state.instellingen.aantal} sommen in ${tijdTekst(state.instellingen.tijdSec)} · geautomatiseerd vanaf <b>${n.auto}</b> goed · gememoriseerd vanaf <b>${n.memo}</b> goed · door naar volgende bij <b>${state.instellingen.doorBij==="memo"?"gememoriseerd":"geautomatiseerd"}</b></p>
+  </div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Naam</th><th>Werkt aan</th><th>Laatste resultaat</th><th class="hide-sm">Leerlijn</th><th></th></tr></thead>
+      <tbody>${ll.map(l=>{
+        const h=laatste(l);
+        return `<tr>
+          <td><button class="namelink" data-action="detail" data-id="${l.id}">${esc(l.naam)}</button></td>
+          <td>${l.klaar?"🎉 Klaar · ":""}${esc(label(stapVan(l)))}</td>
+          <td>${h?`<span class="badge b-${h.status}">${h.goed}/${h.totaal}</span> <span class="muted" style="font-size:12px">wk ${h.week}</span>`:`<span class="muted">—</span>`}</td>
+          <td class="hide-sm">${dots(l)}</td>
+          <td style="text-align:right"><button class="btn small" data-action="printEen" data-id="${l.id}" title="Los werkblad printen">🖨</button></td>
+        </tr>`;}).join("")}</tbody>
+    </table>
+  </div>`;
+}
+
+function uitkomst(l,g){
+  if(g==="" || isNaN(g)) return "";
+  const st=statusVan(g), ix=stapIndex(l);
+  if(l.klaar) return `<span class="badge b-${st}">${statusNaam[st]}</span> <span class="muted">(leerlijn al klaar)</span>`;
+  if(moetDoor(st)){ const nx=state.leerlijn[ix+1]; return `<span class="badge b-${st}">${statusNaam[st]}</span> → ${nx?esc(label(nx)):"leerlijn klaar 🎉"}`; }
+  return `<span class="badge b-${st}">${statusNaam[st]}</span> <span class="muted">blijft op ${esc(label(stapVan(l)))}</span>`;
+}
+
+function renderInvoeren(){
+  const ll=gesorteerd();
+  if(!ll.length) return `<div class="card empty">Nog geen leerlingen.</div>`;
+  const n=normen(), s=state.instellingen;
+  return `<div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:8px">
+      <h2 style="margin:0">Aantal goed invullen</h2>
+      <button class="btn primary" data-action="opslaanInvoer">Opslaan</button>
+    </div>
+    <p class="muted" style="margin:0 0 10px;font-size:13px">Vul in hoeveel sommen goed zijn (van ${s.aantal}). Leeg = niet meegedaan. Vanaf ${n.auto} goed: geautomatiseerd, vanaf ${n.memo}: gememoriseerd. Enter springt naar de volgende.</p>
+    <table>
+      <thead><tr><th>Naam</th><th>Werkblad</th><th>Goed</th><th>Uitkomst</th></tr></thead>
+      <tbody>${ll.map(l=>`<tr>
+        <td><b>${esc(l.naam)}</b>${ditWeekIngevoerd(l)?`<div class="ingevoerd">al ingevoerd deze week (${laatste(l).goed})</div>`:""}</td>
+        <td>${esc(label(stapVan(l)))}</td>
+        <td><input class="inp-goed" type="number" inputmode="numeric" min="0" max="${s.aantal}" data-goed="${l.id}"></td>
+        <td class="uitkomst" id="uit-${l.id}"></td>
+      </tr>`).join("")}</tbody>
+    </table>
+    <div style="text-align:right;margin-top:12px"><button class="btn primary" data-action="opslaanInvoer">Opslaan</button></div>
+  </div>`;
+}
+
+function stapSelect(l, attr){
+  return `<select ${attr}>${state.leerlijn.map((s,i)=>`<option value="${s.id}" ${stapIndex(l)===i?"selected":""}>${i+1}. ${esc(label(s))}</option>`).join("")}</select>`;
+}
+
+function renderLeerlingen(){
+  const ll=gesorteerd();
+  return `<div class="card">
+    <h2>Leerlingen toevoegen</h2>
+    <p class="muted" style="margin:0 0 8px;font-size:13px">Eén naam per regel. Alleen een voornaam (of voornaam + letter) is genoeg.</p>
+    <textarea id="nieuweNamen" rows="5" style="width:100%" placeholder="Sam&#10;Noor&#10;Daan B."></textarea>
+    <div style="margin-top:8px"><button class="btn primary" data-action="voegToe">Toevoegen</button></div>
+  </div>
+  <div class="card">
+    <h2>Klas (${ll.length})</h2>
+    ${ll.length?`<table><thead><tr><th>Naam</th><th>Werkt aan</th><th></th></tr></thead><tbody>
+    ${ll.map(l=>`<tr>
+      <td><input type="text" value="${esc(l.naam)}" data-naam="${l.id}" style="width:100%"></td>
+      <td>${stapSelect(l,`data-stap="${l.id}"`)}</td>
+      <td style="text-align:right"><button class="btn small danger" data-action="verwijder" data-id="${l.id}">Verwijderen</button></td>
+    </tr>`).join("")}</tbody></table>`:`<p class="muted">Nog niemand.</p>`}
+  </div>`;
+}
+
+function renderInstellingen(){
+  const s=state.instellingen, n=normen();
+  return `<div class="card">
+    <h2>Werkblad en normen</h2>
+    <div class="grid2">
+      <label class="f">Aantal sommen per blad<input type="number" min="10" max="100" step="5" value="${s.aantal}" data-set="aantal"></label>
+      <label class="f">Tijd (seconden)<input type="number" min="30" max="600" step="10" value="${s.tijdSec}" data-set="tijdSec"></label>
+      <label class="f">Geautomatiseerd: max. sec per som<input type="number" min="1" max="20" step="0.5" value="${s.autoSec}" data-set="autoSec"></label>
+      <label class="f">Gememoriseerd: max. sec per som<input type="number" min="1" max="20" step="0.5" value="${s.memoSec}" data-set="memoSec"></label>
+      <label class="f">Door naar volgende stap bij
+        <select data-set="doorBij"><option value="auto" ${s.doorBij==="auto"?"selected":""}>Geautomatiseerd</option><option value="memo" ${s.doorBij==="memo"?"selected":""}>Gememoriseerd</option></select></label>
+    </div>
+    <p style="margin:14px 0 0">➜ Geautomatiseerd vanaf <b>${n.auto}</b> goed, gememoriseerd vanaf <b>${n.memo}</b> goed (van ${s.aantal}, in ${tijdTekst(s.tijdSec)}).</p>
+    <div class="row" style="margin-top:12px">
+      <label class="row"><input type="checkbox" data-set="omgedraaid" ${s.omgedraaid?"checked":""}> Ook omgedraaid (7 × 3 én 3 × 7)</label>
+      <label class="row"><input type="checkbox" data-set="antwoordbladen" ${s.antwoordbladen?"checked":""}> Antwoordbladen meeprinten</label>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Leerlijn</h2>
+    <p class="muted" style="margin:0 0 6px;font-size:13px">Klik de tafels aan die in een stap door elkaar komen.</p>
+    ${state.leerlijn.map((st,i)=>`<div class="ljrow">
+      <span class="nr">${i+1}</span>
+      ${[1,2,3,4,5,6,7,8,9,10].map(t=>`<button class="tbtn ${st.tafels.includes(t)?"on":""}" data-action="tafel" data-i="${i}" data-t="${t}">${t}</button>`).join("")}
+      <span class="ljlabel">${esc(label(st))} <span class="muted">(${state.leerlingen.filter(l=>stapIndex(l)===i).length})</span></span>
+      <button class="btn small" data-action="op" data-i="${i}" ${i===0?"disabled":""}>↑</button>
+      <button class="btn small" data-action="neer" data-i="${i}" ${i===state.leerlijn.length-1?"disabled":""}>↓</button>
+      <button class="btn small danger" data-action="stapWeg" data-i="${i}">✕</button>
+    </div>`).join("")}
+    <div style="margin-top:10px"><button class="btn" data-action="stapErbij">+ Stap toevoegen</button></div>
+  </div>
+  <div class="card">
+    <h2>Account en back-up</h2>
+    <p class="muted" style="margin:0 0 10px">Ingelogd als ${esc(user?.email)}</p>
+    <div class="row">
+      <button class="btn" data-action="export">Back-up downloaden</button>
+      <button class="btn" data-action="import">Back-up terugzetten</button>
+      <button class="btn danger" data-action="uitloggen">Uitloggen</button>
+    </div>
+  </div>`;
+}
+
+// ---------- detail ----------
+function openDetail(id){
+  const l=state.leerlingen.find(x=>x.id===id); if(!l) return;
+  const h=[...(l.historie||[])].reverse();
+  const dlg=$("#dlg");
+  dlg.innerHTML = `
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(l.naam)}</h2><button class="btn small" data-close>Sluiten</button></div>
+    <p>Werkt aan ${stapSelect(l,`id="dlgStap"`)}</p>
+    ${dots(l)}
+    <h2 style="margin-top:18px">Geschiedenis</h2>
+    ${h.length?`<table><thead><tr><th>Datum</th><th>Werkblad</th><th>Goed</th><th></th></tr></thead><tbody>
+      ${h.map(e=>`<tr><td>${datumNL(e.datum)} <span class="muted">(wk ${e.week})</span></td><td>${esc(e.label)}</td><td><span class="badge b-${e.status}">${e.goed}/${e.totaal}</span>${e.door?" ↗":""}</td><td></td></tr>`).join("")}
+    </tbody></table>
+    <p><button class="btn small danger" id="dlgUndo">Laatste invoer ongedaan maken</button></p>`:`<p class="muted">Nog geen resultaten.</p>`}`;
+  dlg.querySelector("[data-close]").onclick=()=>dlg.close();
+  dlg.querySelector("#dlgStap").onchange=e=>{ l.stapId=e.target.value; l.klaar=false; bewaar(); toast("Stap aangepast"); };
+  const u=dlg.querySelector("#dlgUndo");
+  if(u) u.onclick=()=>{
+    const e=l.historie.pop(); l.stapId=e.stapId; l.klaar=!!e.klaarVoor;
+    bewaar(); dlg.close(); toast(`Invoer ${e.goed}/${e.totaal} verwijderd`);
+  };
+  dlg.showModal();
+}
+
+// ---------- sommen + printen ----------
+function maakSommen(tafels, n, omgedraaid){
+  const pool=[]; for(const t of tafels) for(let m=1;m<=10;m++) pool.push([m,t]);
+  const out=[]; let zak=[];
+  while(out.length<n){
+    if(!zak.length) zak=shuffle(pool.slice());
+    const vorige=out.at(-1);
+    let k=zak.findIndex(p=>!vorige || !(p[0]===vorige.m && p[1]===vorige.t));
+    if(k<0) k=0;
+    const [m,t]=zak.splice(k,1)[0];
+    let a=m,b=t; if(omgedraaid && Math.random()<.5) [a,b]=[b,a];
+    out.push({a,b,m,t,ans:m*t});
+  }
+  return out;
+}
+function blad({l,stap,sommen}, antw, w){
+  const s=state.instellingen, n=sommen.length, cols=n>60?5:4, rows=Math.ceil(n/cols);
+  const fs = rows<=10?18:rows<=12?16:rows<=15?14:12;
+  return `<section class="blad${antw?" antw":""}">
+    <div class="bh"><div><div class="bnaam">${esc(l.naam)}</div><div class="bstap">${esc(label(stap))}</div></div>
+    <div class="bmeta">${antw?"<b>ANTWOORDEN</b><br>":""}Week ${w.week}<br>${datumNL()}</div></div>
+    <div class="binfo"><span>⏱ Je hebt <b>${tijdTekst(s.tijdSec)}</b>. Werk van boven naar beneden.</span><span>Goed: <span class="vak"></span> / ${n}</span></div>
+    <ol class="sommen" style="--cols:${cols};--rows:${rows};font-size:${fs}pt">
+      ${sommen.map((q,i)=>`<li><span class="nr">${i+1}</span><span class="q">${q.a} × ${q.b} =</span><span class="a">${antw?q.ans:""}</span></li>`).join("")}
+    </ol></section>`;
+}
+function print(lijst){
+  if(!lijst.length) return toast("Nog geen leerlingen om te printen");
+  const s=state.instellingen, w=isoWeek();
+  const sets=lijst.map(l=>{ const stap=stapVan(l); return {l,stap,sommen:maakSommen(stap.tafels,s.aantal,s.omgedraaid)}; });
+  let html=sets.map(x=>blad(x,false,w)).join("");
+  if(s.antwoordbladen) html+=sets.map(x=>blad(x,true,w)).join("");
+  $("#printArea").innerHTML=html;
+  setTimeout(()=>window.print(),80);
+}
+window.addEventListener("afterprint",()=>{ $("#printArea").innerHTML=""; });
+
+// ---------- acties ----------
+function opslaanInvoer(){
+  const w=isoWeek(), nu=vandaag(), s=state.instellingen;
+  let aantal=0, door=0;
+  document.querySelectorAll("[data-goed]").forEach(inp=>{
+    if(inp.value==="") return;
+    const g=Math.max(0,Math.min(s.aantal,parseInt(inp.value,10))); if(isNaN(g)) return;
+    const l=state.leerlingen.find(x=>x.id===inp.dataset.goed); if(!l) return;
+    const ix=stapIndex(l), stap=state.leerlijn[ix], st=statusVan(g), gaatDoor=!l.klaar && moetDoor(st);
+    l.historie ||= [];
+    l.historie.push({ datum:nu, week:w.week, jaar:w.jaar, stapId:stap.id, label:label(stap), goed:g, totaal:s.aantal, tijdSec:s.tijdSec, status:st, door:gaatDoor, klaarVoor:!!l.klaar });
+    if(gaatDoor){ if(ix<state.leerlijn.length-1) l.stapId=state.leerlijn[ix+1].id; else l.klaar=true; door++; }
+    else l.stapId=stap.id;
+    aantal++;
+  });
+  if(!aantal) return toast("Nog niets ingevuld");
+  invoerDirty=false;
+  bewaar(); render();
+  toast(`${aantal} resultaten opgeslagen · ${door} door naar de volgende stap`);
+}
+
+$("#tabs").addEventListener("click",e=>{ const b=e.target.closest("[data-tab]"); if(!b) return;
+  if(tab==="invoeren" && invoerDirty && !confirm("Je hebt nog niet opgeslagen. Toch weg?")) return;
+  tab=b.dataset.tab; render(); });
+
+document.addEventListener("click",e=>{
+  const go=e.target.closest("[data-tab-go]"); if(go){ tab=go.dataset.tabGo; render(); return; }
+  const b=e.target.closest("[data-action]"); if(!b || !state) return;
+  const a=b.dataset.action, i=+b.dataset.i;
+  const lj=state.leerlijn;
+  switch(a){
+    case "printAlles": print(gesorteerd()); break;
+    case "printEen": print(state.leerlingen.filter(l=>l.id===b.dataset.id)); break;
+    case "detail": openDetail(b.dataset.id); break;
+    case "opslaanInvoer": opslaanInvoer(); break;
+    case "voegToe": {
+      const namen=$("#nieuweNamen").value.split("\n").map(x=>x.trim()).filter(Boolean);
+      if(!namen.length) return;
+      namen.forEach(naam=>state.leerlingen.push({id:nieuwId(),naam,stapId:lj[0].id,klaar:false,historie:[]}));
+      bewaar(); render(); toast(`${namen.length} toegevoegd`); break; }
+    case "verwijder": {
+      const l=state.leerlingen.find(x=>x.id===b.dataset.id);
+      if(l && confirm(`${l.naam} en alle resultaten verwijderen?`)){ state.leerlingen=state.leerlingen.filter(x=>x!==l); bewaar(); render(); }
+      break; }
+    case "tafel": {
+      const t=+b.dataset.t, st=lj[i];
+      if(st.tafels.includes(t)){ if(st.tafels.length===1) return toast("Een stap heeft minstens één tafel nodig"); st.tafels=st.tafels.filter(x=>x!==t); }
+      else st.tafels=[...st.tafels,t].sort((x,y)=>x-y);
+      bewaar(); render(); break; }
+    case "op": if(i>0){ [lj[i-1],lj[i]]=[lj[i],lj[i-1]]; bewaar(); render(); } break;
+    case "neer": if(i<lj.length-1){ [lj[i+1],lj[i]]=[lj[i],lj[i+1]]; bewaar(); render(); } break;
+    case "stapErbij": lj.push({id:nieuwId(),tafels:[1,2,3,4,5,6,7,8,9,10]}); bewaar(); render(); break;
+    case "stapWeg": {
+      if(lj.length===1) return toast("De leerlijn heeft minstens één stap nodig");
+      const kids=state.leerlingen.filter(l=>stapIndex(l)===i);
+      if(!confirm(`Stap ${i+1} (${label(lj[i])}) verwijderen?${kids.length?` ${kids.length} leerling(en) gaan naar de volgende stap.`:""}`)) return;
+      const naar=lj[i+1]||lj[i-1];
+      kids.forEach(l=>l.stapId=naar.id);
+      lj.splice(i,1); bewaar(); render(); break; }
+    case "export": {
+      const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+      const a2=document.createElement("a"); a2.href=URL.createObjectURL(blob); a2.download=`tafelladder-backup-${vandaag()}.json`; a2.click(); break; }
+    case "import": $("#importFile").click(); break;
+    case "uitloggen": signOut(auth); break;
+  }
+});
+
+$("#importFile").addEventListener("change",async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{
+    const data=JSON.parse(await f.text());
+    if(!Array.isArray(data.leerlingen)||!Array.isArray(data.leerlijn)) throw new Error("geen Tafelladder-back-up");
+    if(!confirm(`Back-up met ${data.leerlingen.length} leerlingen terugzetten? Huidige gegevens worden overschreven.`)) return;
+    state=data; await bewaar(); render(); toast("Back-up teruggezet");
+  }catch(err){ toast("Import mislukt: "+err.message); }
+  e.target.value="";
+});
+
+document.addEventListener("change",e=>{
+  if(!state) return;
+  const t=e.target;
+  if(t.dataset.set){
+    const k=t.dataset.set, s=state.instellingen;
+    if(t.type==="checkbox") s[k]=t.checked;
+    else if(t.tagName==="SELECT") s[k]=t.value;
+    else { const v=parseFloat(t.value); if(isNaN(v)||v<=0) return render(); s[k]=v; }
+    bewaar(); render();
+  } else if(t.dataset.naam){
+    const l=state.leerlingen.find(x=>x.id===t.dataset.naam); const v=t.value.trim();
+    if(l && v){ l.naam=v; bewaar(); }
+  } else if(t.dataset.stap){
+    const l=state.leerlingen.find(x=>x.id===t.dataset.stap);
+    if(l){ l.stapId=t.value; l.klaar=false; bewaar(); render(); toast(`${l.naam}: ${label(stapVan(l))}`); }
+  }
+});
+
+document.addEventListener("input",e=>{
+  const id=e.target.dataset?.goed; if(!id) return;
+  invoerDirty=true;
+  const l=state.leerlingen.find(x=>x.id===id);
+  $("#uit-"+id).innerHTML=uitkomst(l, e.target.value===""?"":parseInt(e.target.value,10));
+});
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Enter" || !e.target.dataset?.goed) return;
+  e.preventDefault();
+  const all=[...document.querySelectorAll("[data-goed]")]; const nx=all[all.indexOf(e.target)+1];
+  if(nx) nx.focus(); else opslaanInvoer();
+});
+window.addEventListener("beforeunload",e=>{ if(invoerDirty){ e.preventDefault(); e.returnValue=""; } });
+</script>
+</body>
+</html>
